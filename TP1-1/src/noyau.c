@@ -58,7 +58,14 @@ void fin_tache(void)
  *--------------------------------------------------------------------------*/
 uint16_t cree( TACHE_ADR adr_tache )
 {
-	CONTEXTE *p;                    /* pointeur d'une case de _contexte */
+	/*
+	compteurs[j] = 0;
+	_contexte[j].sp_irq = _tos;
+	_tos -= PILE_IRQ;
+	_contexte[j].sp_ini = _tos;
+	_tos -= PILE_TACHE;
+	*/
+	CONTEXTE *p;                  /* pointeur d'une case de _contexte */
 	static uint16_t tache = -1;   /* contient numero dernier cree */
 
 
@@ -79,7 +86,7 @@ uint16_t cree( TACHE_ADR adr_tache )
 
 	/* memorisation adresse debut de tache */
 	/* mise a l'etat CREE */
-  return(tache);                  /* tache est un uint16_t */
+	return(tache);                  /* tache est un uint16_t */
 }
 
 /*--------------------------------------------------------------------------*
@@ -217,11 +224,16 @@ void start( TACHE_ADR adr_tache )
 	for (j=0; j<MAX_TACHES; j++)
 	{
 		/* initialisation de l'etat des taches */
+		_contexte[j].status = NCREE;
 	}
 	/* initialisation de la tache courante */
 	/* initialisation de la file           */
+	file_init();
+	_tache_c = F_VIDE;
 
 	/* Initialisation de la variable Haut de la pile des tâches */
+	_tos = sp;
+
 	/* Passer en mode IRQ */
 	/* sp_irq initial */
 	/* Repasser en mode SYS */
