@@ -18,15 +18,15 @@ static int compteurs[MAX_TACHES]; /* Compteurs d'activations */
 CONTEXTE _contexte[MAX_TACHES];   /* tableau des contextes */
 volatile uint16_t _tache_c;       /* numéro de tache courante */
 uint32_t  _tos;                   /* adresse du sommet de pile */
-int  _ack_timer = 1;              /* = 1 si il faut acquitter le timer */
+int _ack_timer = 1;              /* = 1 si il faut acquitter le timer */
 
 /*--------------------------------------------------------------------------*
  *                        Fin de l'execution                                *
  *----------------------------------------------------------------------- --*/
-void	noyau_exit(void)
+void noyau_exit(void)
 {
-  	/* Désactiver les interruptions */
-  printf("Sortie du noyau\n");
+ 	/* Désactiver les interruptions */
+	printf("Sortie du noyau\n");
 	/* afficher par exemple le nombre d'activation de chaque tache */
 								
 	/* Terminer l'exécution */
@@ -40,12 +40,10 @@ void	noyau_exit(void)
  * Descrip: Cette proc. doit etre appelee a la fin des taches               *
  *                                                                          *
  *----------------------------------------------------------------------- --*/
-void  fin_tache(void)
+void fin_tache(void)
 {
-  /* on interdit les interruptions */
-	
-  /* la tache est enlevee de la file des taches */
-
+	/* on interdit les interruptions */
+	/* la tache est enlevee de la file des taches */
 }
 
 /*--------------------------------------------------------------------------*
@@ -60,27 +58,27 @@ void  fin_tache(void)
  *--------------------------------------------------------------------------*/
 uint16_t cree( TACHE_ADR adr_tache )
 {
-  CONTEXTE *p;                    /* pointeur d'une case de _contexte */
-  static   uint16_t tache = -1;   /* contient numero dernier cree */
+	CONTEXTE *p;                    /* pointeur d'une case de _contexte */
+	static uint16_t tache = -1;   /* contient numero dernier cree */
 
 
-									/* debut section critique */
-									/* numero de tache suivant */
+	/* debut section critique */
+	/* numero de tache suivant */
 
-  if (tache >= MAX_TACHES)        /* sortie si depassement */
+	if (tache >= MAX_TACHES)        /* sortie si depassement */
 	{
-				/* sortie car depassement       */
+		/* sortie car depassement       */
 	}	
 
-									/* contexte de la nouvelle tache */
+	/* contexte de la nouvelle tache */
 
-									/* allocation d'une pile a la tache */
-									/* decrementation du pointeur de pile pour la prochaine tache. */
+	/* allocation d'une pile a la tache */
+	/* decrementation du pointeur de pile pour la prochaine tache. */
 
-									/* fin section critique */
+	/* fin section critique */
 
-									/* memorisation adresse debut de tache */
-									/* mise a l'etat CREE */
+	/* memorisation adresse debut de tache */
+	/* mise a l'etat CREE */
   return(tache);                  /* tache est un uint16_t */
 }
 
@@ -94,23 +92,23 @@ uint16_t cree( TACHE_ADR adr_tache )
  * Err. fatale: Tache inconnue	                                            *
  *                                                                          *
  *--------------------------------------------------------------------------*/
-void  active( uint16_t tache )
+void active( uint16_t tache )
 {
-  CONTEXTE *p = &_contexte[tache]; /* acces au contexte tache */
+	CONTEXTE *p = &_contexte[tache]; /* acces au contexte tache */
 
-  if (p->status == NCREE)
-  {
-				/* sortie du noyau         		 */
-  }
+	if (p->status == NCREE)
+	{
+		/* sortie du noyau         		 */
+	}
 
-									/* debut section critique */
-  if (p->status == CREE)          	/* n'active que si receptif */
-  {
-									/* changement d'etat, mise a l'etat PRET */
-									/* ajouter la tache dans la liste */
-									/* activation d'une tache prete */
-  }
-									/* fin section critique */
+	/* debut section critique */
+	if (p->status == CREE)          	/* n'active que si receptif */
+	{
+		/* changement d'etat, mise a l'etat PRET */
+		/* ajouter la tache dans la liste */
+		/* activation d'une tache prete */
+	}
+	/* fin section critique */
 }
 
 
@@ -123,56 +121,56 @@ void  active( uint16_t tache )
  *--------------------------------------------------------------------------*/
 void __attribute__((naked)) scheduler( void )
 {
-  register CONTEXTE *p;
-  register unsigned int sp asm("sp");  /* Pointeur de pile */
+	register CONTEXTE *p;
+	register unsigned int sp asm("sp");  /* Pointeur de pile */
 
-  /* Sauvegarder le contexte complet sur la pile IRQ */
-  __asm__ __volatile__(
-									/* Sauvegarde registres mode system */
-									/* Attendre un cycle */
-									/* Ajustement pointeur de pile */
-									/* Sauvegarde de spsr_irq */
-						);			/* et de lr_irq */
+	/* Sauvegarder le contexte complet sur la pile IRQ */
+	__asm__ __volatile__(""
+	      /* Sauvegarde registres mode system */
+	      /* Attendre un cycle */
+	      /* Ajustement pointeur de pile */
+	      /* Sauvegarde de spsr_irq */
+	); /* et de lr_irq */
 
-  if (_ack_timer)                 /* Réinitialiser le timer si nécessaire */
-  {
-    							/* Acquiter l'événement de comparaison du Timer pour pouvoir */
-								/* obtenir le déclencement d'une prochaine interruption */
-  }
-  else
-  {
-    _ack_timer = 1;
-  }
+	if (_ack_timer) 	/* Réinitialiser le timer si nécessaire */
+	{
+		/* Acquiter l'événement de comparaison du Timer pour pouvoir */
+		/* obtenir le déclencement d'une prochaine interruption */
+	}
+	else
+	{
+	  _ack_timer = 1;
+	}
 
-									/* memoriser le pointeur de pile */
-									/* recherche du suivant */
+	/* memoriser le pointeur de pile */
+	/* recherche du suivant */
+
 	 
-									 
-									/* Incrémenter le compteur d'activations  */
-									/* p pointe sur la nouvelle tache courante*/
+	/* Incrémenter le compteur d'activations  */
+	/* p pointe sur la nouvelle tache courante*/
 
-  if (p->status == PRET)          /* tache prete ? */
-  {
-									/* Charger sp_irq initial */
-									/* Passer en mode système */
-									/* Charger sp_sys initial */
-									/* status tache -> execution */
-									/* autoriser les interuptions   */
-									/* lancement de la tâche */
-  }
-  else
-  {
-									/* tache deja en execution, restaurer sp_irq */
-  }
+	if (p->status == PRET)          /* tache prete ? */
+	{
+		/* Charger sp_irq initial */
+		/* Passer en mode système */
+		/* Charger sp_sys initial */
+		/* status tache -> execution */
+		/* autoriser les interuptions   */
+		/* lancement de la tâche */
+	}
+	else
+	{
+		/* tache deja en execution, restaurer sp_irq */
+	}
 
-  /* Restaurer le contexte complet depuis la pile IRQ */
-  __asm__ __volatile__(
-									/* Restaurer lr_irq */
-									/* et spsr_irq */
-									/* Restaurer registres mode system */
-									/* Attendre un cycle */
-									/* Ajuster pointeur de pile irq */
-					  );   			/* Retour d'exception */
+	/* Restaurer le contexte complet depuis la pile IRQ */
+	__asm__ __volatile__(""
+		/* Restaurer lr_irq */
+		/* et spsr_irq */
+		/* Restaurer registres mode system */
+		/* Attendre un cycle */
+		/* Ajuster pointeur de pile irq */
+	); /* Retour d'exception */
 }
 
 
@@ -183,22 +181,20 @@ void __attribute__((naked)) scheduler( void )
  *  !! Pas d'appel direct ! Utiliser schedule pour provoquer une            *
  *  commutation !!                                                          *
  *--------------------------------------------------------------------------*/
-void  schedule( void )
+void schedule( void )
 {
-									/* Debut section critique */
+	/* Debut section critique */
+	/* On simule une exception irq pour forcer un appel correct à scheduler().*/
+	/* Passer en mode IRQ */
+	__asm__ __volatile__(""
+		/* Sauvegarder cpsr dans spsr */
 
-  /* On simule une exception irq pour forcer un appel correct à scheduler().*/
-	
-									/* Passer en mode IRQ */
-  __asm__ __volatile__(
-									/* Sauvegarder cpsr dans spsr */
-		
-									/* Sauvegarder pc dans lr et l'ajuster */
-									/* Saut à scheduler */
-                       );
-									/* Repasser en mode system */
+		/* Sauvegarder pc dans lr et l'ajuster */
+		/* Saut à scheduler */
+	);
+	/* Repasser en mode system */
 
-									/* Fin section critique */
+	/* Fin section critique */
 }
 
 /*--------------------------------------------------------------------------*
@@ -211,34 +207,33 @@ void  schedule( void )
  * Err. fatale: Neant                                                       *
  *                                                                          *
  *--------------------------------------------------------------------------*/
-void	start( TACHE_ADR adr_tache )
+void start( TACHE_ADR adr_tache )
 {
-  short j;
-  register unsigned int sp asm("sp");
-  struct imx_timer* tim1 = (struct imx_timer *) TIMER1_BASE;
-  struct imx_aitc* aitc = (struct imx_aitc *) AITC_BASE;
+	short j;
+	register unsigned int sp asm("sp");
+	struct imx_timer* tim1 = (struct imx_timer *) TIMER1_BASE;
+	struct imx_aitc* aitc = (struct imx_aitc *) AITC_BASE;
 
-  for (j=0; j<MAX_TACHES; j++)
-  {
-									/* initialisation de l'etat des taches */
-  }
-									/* initialisation de la tache courante */
-									/* initialisation de la file           */
+	for (j=0; j<MAX_TACHES; j++)
+	{
+		/* initialisation de l'etat des taches */
+	}
+	/* initialisation de la tache courante */
+	/* initialisation de la file           */
 
-									/* Initialisation de la variable Haut de la pile des tâches */
-									/* Passer en mode IRQ */
-									/* sp_irq initial */
-									/* Repasser en mode SYS */
+	/* Initialisation de la variable Haut de la pile des tâches */
+	/* Passer en mode IRQ */
+	/* sp_irq initial */
+	/* Repasser en mode SYS */
 
-									/* on interdit les interruptions */
+	/* on interdit les interruptions */
 
-  /* Initialisation du timer à 100 Hz */
+	/* Initialisation du timer à 100 Hz */
 
-  
-  /* Initialisation de l'AITC */
-  
 
-									/* creation et activation premiere tache */
+	/* Initialisation de l'AITC */
+
+	/* creation et activation premiere tache */
 }
 
 
@@ -253,7 +248,7 @@ void	start( TACHE_ADR adr_tache )
  *                                                                         *
  *-------------------------------------------------------------------------*/
 
-void  dort(void)
+void dort(void)
 {
 
 }
