@@ -71,21 +71,32 @@ uint16_t cree( TACHE_ADR adr_tache )
 
 	/* debut section critique */
 	/* numero de tache suivant */
+	tache++;
 
 	if (tache >= MAX_TACHES)        /* sortie si depassement */
 	{
 		/* sortie car depassement       */
-	}	
-
+		return MAX_TACHES;
+	}
+	
+	/* initialisation du compteur d'activations */
+	compteurs[tache] = 0;
 	/* contexte de la nouvelle tache */
+	p = &(_contexte[tache]);
 
-	/* allocation d'une pile a la tache */
-	/* decrementation du pointeur de pile pour la prochaine tache. */
+	/* allocation d'une pile a la tache & decrementation du pointeur de pile pour la prochaine tache. */
+	p->sp_irq = _tos;
+	_tos -= PILE_IRQ;
+	p->sp_ini = _tos;
+	_tos -= PILE_TACHE;
 
 	/* fin section critique */
 
 	/* memorisation adresse debut de tache */
+	p->tache_adr = adr_tache;
 	/* mise a l'etat CREE */
+	p->status = CREE;
+
 	return(tache);                  /* tache est un uint16_t */
 }
 
@@ -226,13 +237,18 @@ void start( TACHE_ADR adr_tache )
 		/* initialisation de l'etat des taches */
 		_contexte[j].status = NCREE;
 	}
-	/* initialisation de la tache courante */
-	/* initialisation de la file           */
-	file_init();
-	_tache_c = F_VIDE;
-
 	/* Initialisation de la variable Haut de la pile des tâches */
 	_tos = sp;
+
+	/* initialisation de la file           */
+	file_init();
+
+	/* initialisation de la tache courante */
+	_tache_c = cree(adr_tache);
+
+	/* ajout de la tache a la file */
+	ajoute(_tache_c);
+
 
 	/* Passer en mode IRQ */
 	/* sp_irq initial */
